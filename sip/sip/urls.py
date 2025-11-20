@@ -13,6 +13,4 @@ urlpatterns = [
     path('upload/', views.upload_file, name='upload'),
     path('download/<str:filename>/', views.download_file, name='download'),
     path('delete/<str:filename>/', views.delete_file, name='delete'),
-    #admin(adddclient)
-    path('add-client/', views.add_client, name='add_client'),
 ]

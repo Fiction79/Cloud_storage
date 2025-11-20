@@ -17,13 +17,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 #macdebug ---------------- /mnt/data mac ma read only hudo raixa 
-import os
+import os 
 import platform
 
 if platform.system() == "Darwin":  # Mac
     USER_DATA_ROOT = os.path.join(BASE_DIR, "user_data/")
 else:  # Raspberry Pi / Linux
-    USER_DATA_ROOT = "/mnt/data/"
+    USER_DATA_ROOT = "/mnt/data/sip_userdata"
 
 # Ensure the folder exists
 os.makedirs(USER_DATA_ROOT, exist_ok=True)

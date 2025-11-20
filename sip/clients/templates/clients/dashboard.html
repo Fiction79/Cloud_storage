@@ -114,6 +114,9 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     .card:hover {
@@ -126,11 +129,22 @@
       color: #E0E7FF;
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
+      word-break: break-word;
     }
 
     .card p {
       font-size: 0.9rem;
       color: #9CA3AF;
+      margin: 0.2rem 0;
+    }
+
+    .card img {
+      max-width: 100%;
+      max-height: 120px;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
     }
 
     .card-actions {
@@ -174,10 +188,45 @@
       {% for file in files %}
       <div class="card">
         <h3>{{ file.name }}</h3>
-        <p>{{ file.size }} MB</p>
+        <p>Size: {{ file.size|floatformat:2 }} MB</p>
+        <p>Uploaded: {{ file.uploaded_at|date:"Y-m-d H:i" }}</p>
+
+{% if file.is_image %}
+  <a href="{% url 'download' file.name %}" target="_blank">
+    <img src="{% url 'download' file.name %}" alt="{{ file.name }}">
+  </a>
+{% elif file.is_video %}
+  <video width="100%" controls style="margin-top:0.5rem;">
+    <source src="{% url 'download' file.name %}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+{% elif file.is_audio %}
+  <audio controls style="width:100%; margin-top:0.5rem;">
+    <source src="{% url 'download' file.name %}" type="audio/mpeg">
+    Your browser does not support the audio tag.
+  </audio>
+{% elif file.is_pdf %}
+  <iframe src="{% url 'download' file.name %}" width="100%" height="200px" style="margin-top:0.5rem;" frameborder="0">
+    This browser does not support PDFs. <a href="{% url 'download' file.name %}">Download PDF</a>
+  </iframe>
+{% endif %}
+
+{% if over_quota %}
+  <p style="color:#F87171; font-weight:bold;">
+    ⚠ You have exceeded your storage limit ({{ used_mb|floatformat:2 }} MB / {{ limit_mb|floatformat:2 }} MB)!
+  </p>
+{% else %}
+  <p>Used: {{ used_mb|floatformat:2 }} MB / {{ limit_mb|floatformat:2 }} MB</p>
+{% endif %}
+
+
+
+
         <div class="card-actions">
           <a href="{% url 'download' file.name %}"><button class="btn">Download</button></a>
-          <a href="{% url 'delete' file.name %}"><button class="btn btn-delete">Delete</button></a>
+          <a href="{% url 'delete' file.name %}" onclick="return confirm('Are you sure you want to delete this file?');">
+            <button class="btn btn-delete">Delete</button>
+          </a>
         </div>
       </div>
       {% empty %}

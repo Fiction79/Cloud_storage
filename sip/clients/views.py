@@ -1,3 +1,4 @@
+# clients/views.py
 import os
 import shutil
 import subprocess
@@ -7,37 +8,15 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .models import ClientFile, ClientProfile
-from .forms import AddClientForm
+
+from django.contrib.auth.models import User
+from django.contrib import messages
 
 
 # -------------------- Admin helpers -------------------- #
 def is_admin(user):
     """Check if the user is a superuser (admin)."""
     return user.is_superuser
-
-
-#@user_passes_test(is_admin)
-from django.contrib.auth.models import User
-from django.contrib import messages
-
-def add_client(request):
-    if request.method == "POST":
-        form = AddClientForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            if User.objects.filter(username=username).exists():
-                messages.error(request, "A user with that username already exists.")
-                return render(request, "clients/add_client.html", {"form": form})
-
-            storage_path = os.path.join(settings.USER_DATA_ROOT, username)
-            form.instance.storage_path = storage_path
-            client = form.save()
-            os.makedirs(storage_path, exist_ok=True)
-            return redirect('login')
-    else:
-        form = AddClientForm()
-    return render(request, "clients/add_client.html", {"form": form})
-
 
 
 @user_passes_test(is_admin)
@@ -63,59 +42,84 @@ def delete_client(request, user_id):
 # -------------------- Client Dashboard -------------------- #
 @login_required
 def dashboard(request):
-    """
-    Display client dashboard with all uploaded files and quota info.
-    """
-    client_profile = ClientProfile.objects.get(user=request.user)
+    # Get or create the client profile to ensure it always exists.
+    # The default quota here matches the one in the post_save signal.
+    client_profile, created = ClientProfile.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'storage_path': os.path.join(settings.USER_DATA_ROOT, request.user.username),
+            'quota_limit': 5 * 1024**3  # default 5GB - Matches signal default
+        }
+    )
 
-    # Ensure storage folder exists
-    if not os.path.exists(client_profile.storage_path):
-        os.makedirs(client_profile.storage_path, exist_ok=True)
+    # Ensure storage_path is set correctly if it was just created or was empty
+    if not client_profile.storage_path:
+        client_profile.storage_path = os.path.join(settings.USER_DATA_ROOT, request.user.username)
+        # Only save if quota_limit is also missing (unlikely if get_or_create worked or signal worked)
+        if client_profile.quota_limit is None:
+             client_profile.quota_limit = 5 * 1024**3 # Or just rely on get_or_create default
+        client_profile.save(update_fields=['storage_path']) # Save only the path if it was missing
 
-    # Sync disk files to DB if missing
-    for f in os.listdir(client_profile.storage_path):
-        if not client_profile.files.filter(name=f).exists():
-            size_mb = os.path.getsize(os.path.join(client_profile.storage_path, f)) / (1024 * 1024)
-            ClientFile.objects.create(client=client_profile, name=f, size=size_mb)
+    # Now ensure the directory exists
+    storage_path = client_profile.storage_path
+    if storage_path:  # Only try to create if the path is not empty
+        os.makedirs(storage_path, exist_ok=True)
+    else:
+        # This should ideally not happen if get_or_create works correctly,
+        # but adding a safeguard. You might want to log this.
+        messages.error(request, "Error: Storage path is not configured correctly for your account.")
+        # You might want to redirect to an error page or handle this differently
+        # For now, we'll render with an empty files list
+        return render(request, "clients/dashboard.html", {
+            "files": [],
+            "used_mb": 0,
+            "limit_mb": 0,
+            "over_quota": True # Indicate an error state
+        })
 
     files = client_profile.files.all()
 
-    # Get quota info (optional, only if on Linux with quota configured)
-    try:
-        quota_info = subprocess.getoutput(f"quota -s {request.user.username}")
-    except Exception:
-        quota_info = "Quota info unavailable"
+    used_bytes = client_profile.used_bytes()
+    limit_bytes = client_profile.quota_limit
+    over_quota = client_profile.is_over_quota()
+
+    # convert to MB for template
+    used_mb = used_bytes / (1024 * 1024)
+    limit_mb = limit_bytes / (1024 * 1024)
 
     return render(request, "clients/dashboard.html", {
         "files": files,
-        "quota": quota_info
+        "used_mb": used_mb,
+        "limit_mb": limit_mb,
+        "over_quota": over_quota
     })
 
 
 # -------------------- File Operations -------------------- #
 @login_required
 def upload_file(request):
-    """
-    Handle client file uploads. Files are saved to disk and DB.
-    """
-    if request.method == "POST" and request.FILES.get("file"):
-        client_profile = ClientProfile.objects.get(user=request.user)
+    client_profile = ClientProfile.objects.get(user=request.user)
+    uploaded_file = request.FILES.get("file")
+
+    # Check if storage_path is valid before proceeding
+    if not client_profile.storage_path:
+        messages.error(request, "Upload failed: Storage path not configured.")
+        return redirect("dashboard")
+
+    if uploaded_file:
+        file_size = uploaded_file.size  # in bytes
+        if client_profile.used_bytes() + file_size > client_profile.quota_limit:
+            messages.error(request, "Upload would exceed your storage quota!")
+            return redirect("dashboard")
+
+        # Ensure the directory exists before saving
         user_dir = client_profile.storage_path
-
-        # Ensure storage folder exists
         os.makedirs(user_dir, exist_ok=True)
-
-        uploaded_file = request.FILES["file"]
         file_path = os.path.join(user_dir, uploaded_file.name)
-
-        # Save file to disk
         with open(file_path, 'wb+') as dest:
             for chunk in uploaded_file.chunks():
                 dest.write(chunk)
-
-        # Save metadata to DB
-        size_mb = os.path.getsize(file_path) / (1024 * 1024)
-        ClientFile.objects.create(client=client_profile, name=uploaded_file.name, size=size_mb)
+        ClientFile.objects.create(client=client_profile, name=uploaded_file.name, size=file_size/(1024*1024))
 
     return redirect("dashboard")
 
@@ -126,6 +130,10 @@ def download_file(request, filename):
     Download a file from the client's storage folder.
     """
     client_profile = ClientProfile.objects.get(user=request.user)
+    # Check if storage_path is valid before proceeding
+    if not client_profile.storage_path:
+        return HttpResponse("File not found: Storage path not configured.", status=404)
+
     file_path = os.path.join(client_profile.storage_path, filename)
     if os.path.exists(file_path):
         return FileResponse(open(file_path, "rb"), as_attachment=True)
@@ -138,6 +146,11 @@ def delete_file(request, filename):
     Delete a file from the client's storage folder and DB.
     """
     client_profile = ClientProfile.objects.get(user=request.user)
+    # Check if storage_path is valid before proceeding
+    if not client_profile.storage_path:
+        messages.error(request, "Delete failed: Storage path not configured.")
+        return redirect("dashboard")
+
     file_path = os.path.join(client_profile.storage_path, filename)
 
     if os.path.exists(file_path):

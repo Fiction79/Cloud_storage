@@ -106,11 +106,13 @@ def upload_file(request):
         messages.error(request, "Upload failed: Storage path not configured.")
         return redirect("dashboard")
 
+    # Get all uploaded files
     uploaded_files = request.FILES.getlist("files")
     if not uploaded_files:
         messages.warning(request, "No files were selected.")
         return redirect("dashboard")
 
+    # Calculate total size
     total_size = sum(f.size for f in uploaded_files)
     if client_profile.used_bytes() + total_size > client_profile.quota_limit:
         messages.error(request, "Upload would exceed your storage quota!")
@@ -120,22 +122,28 @@ def upload_file(request):
     os.makedirs(user_dir, exist_ok=True)
 
     for uploaded_file in uploaded_files:
-        # Get the full path (e.g., "photos/beach.jpg")
-        relative_path = getattr(uploaded_file, 'name', uploaded_file._name)
-
+        # The filename sent from the browser includes the relative path
+        # This is set in the JavaScript: formData.append('files', file, relativePath)
+        relative_path = uploaded_file.name
+        
         # SECURITY: Normalize and prevent directory traversal
         relative_path = os.path.normpath(relative_path)
         if relative_path.startswith("..") or os.path.isabs(relative_path) or '\0' in relative_path:
             messages.error(request, f"Invalid file path: {relative_path}")
             continue
 
+        # Build the full filesystem path
         full_path = os.path.join(user_dir, relative_path)
+        
+        # Create any necessary subdirectories
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
+        # Write the file to disk
         with open(full_path, 'wb+') as dest:
             for chunk in uploaded_file.chunks():
                 dest.write(chunk)
 
+        # Save to database with the relative path
         ClientFile.objects.create(
             client=client_profile,
             name=os.path.basename(relative_path),

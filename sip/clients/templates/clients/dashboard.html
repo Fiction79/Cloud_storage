@@ -157,7 +157,7 @@
       background: rgba(99, 102, 241, 0.1);
     }
 
-    #fileElem {
+    #fileElem, #folderElem {
       display: none;
     }
 
@@ -176,6 +176,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       white-space: nowrap;
+      margin: 0.25rem;
     }
 
     .btn:hover {
@@ -301,9 +302,11 @@
     <div class="upload-section">
       <h2>Upload Files or Folders</h2>
       <div id="drop-area">
-        <p>📁 Drag & drop files or folders here </p>
-        <input type="file" id="fileElem" multiple webkitdirectory directory />
-        <button type="button" class="btn" onclick="document.getElementById('fileElem').click()">Browse</button>
+        <p>📁 Drag & drop files or folders here</p>
+        <input type="file" id="fileElem" multiple />
+        <input type="file" id="folderElem" webkitdirectory directory />
+        <button type="button" class="btn" onclick="document.getElementById('fileElem').click()">📄 Select Files</button>
+        <button type="button" class="btn" onclick="document.getElementById('folderElem').click()">📁 Select Folder</button>
       </div>
 
       <div id="upload-progress" class="progress-bar" style="display: none; margin-top: 1rem;">
@@ -328,7 +331,7 @@
               <p style="color: var(--text-secondary);">Folder</p>
             </div>
             <div class="card-actions">
-              <button class="btn" disabled>Download</button> <!-- Optional: add folder zip later -->
+              <button class="btn" disabled>Download</button>
               <a href="{% url 'delete_folder' folder.name %}" onclick="return confirm('Delete entire folder?');">
                 <button class="btn btn-delete">Delete</button>
               </a>
@@ -386,6 +389,7 @@
   <script>
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('fileElem');
+    const folderInput = document.getElementById('folderElem');
     const progressBar = document.getElementById('upload-progress');
     const progressFill = document.querySelector('.progress-fill');
     const progressText = document.getElementById('progress-text');
@@ -410,11 +414,48 @@
 
     dropArea.addEventListener('drop', handleDrop, false);
     fileInput.addEventListener('change', handleFileSelect, false);
+    folderInput.addEventListener('change', handleFileSelect, false);
 
     function handleDrop(e) {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-      uploadFiles(files);
+      const items = e.dataTransfer.items;
+      
+      if (items) {
+        processItems(items).then(fileList => {
+          uploadFiles(fileList);
+        });
+      } else {
+        const dt = e.dataTransfer;
+        uploadFiles(dt.files);
+      }
+    }
+
+    async function processItems(items) {
+      const files = [];
+      const queue = [];
+      
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.kind === 'file') {
+          const entry = item.webkitGetAsEntry();
+          queue.push(entry);
+        }
+      }
+      
+      while (queue.length > 0) {
+        const entry = queue.shift();
+        
+        if (entry.isFile) {
+          const file = await new Promise(resolve => entry.file(resolve));
+          file.fullPath = entry.fullPath.substring(1);
+          files.push(file);
+        } else if (entry.isDirectory) {
+          const reader = entry.createReader();
+          const entries = await new Promise(resolve => reader.readEntries(resolve));
+          queue.push(...entries);
+        }
+      }
+      
+      return files;
     }
 
     function handleFileSelect(e) {
@@ -428,18 +469,14 @@
       const formData = new FormData();
       const filesArray = Array.from(fileList);
 
-      // Add CSRF token
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
       formData.append('csrfmiddlewaretoken', csrfToken);
 
-      // Add each file with its relative path
       filesArray.forEach(file => {
-        // For folders, `webkitRelativePath` gives path like "myfolder/image.png"
-        const relativePath = file.webkitRelativePath || file.name;
+        const relativePath = file.fullPath || file.webkitRelativePath || file.name;
         formData.append('files', file, relativePath);
       });
 
-      // Show progress bar
       progressBar.style.display = 'block';
       progressFill.style.width = '0%';
       progressText.textContent = 'Starting upload...';
@@ -474,7 +511,6 @@
     }
   </script>
 
-  <!-- Hidden CSRF token for AJAX (safe to include) -->
   {% csrf_token %}
 </body>
 </html>

@@ -4,96 +4,332 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login | Zephyr Cloud</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-body {
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
       height: 100vh;
-      background: radial-gradient(circle at 25% 25%, #1E1B4B 0%, #0F172A 100%);
+      background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Inter', sans-serif;
       color: #E5E7EB;
+      overflow: hidden;
+      position: relative;
     }
-.login-container {
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      padding: 2.5rem;
-      width: 370px;
+
+    /* Animated background elements */
+    body::before,
+    body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    body::before {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #6366f1, transparent);
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    body::after {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, #06b6d4, transparent);
+      bottom: -50px;
+      right: -50px;
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      33% {
+        transform: translate(30px, -30px) scale(1.1);
+      }
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
+      }
+    }
+
+    .login-wrapper {
+      position: relative;
+      z-index: 10;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      width: 420px;
       text-align: center;
-      box-shadow: 0 0 25px rgba(99, 102, 241, 0.2);
-      animation: fadeIn 0.8s ease;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(99, 102, 241, 0.15);
+      transition: transform 0.3s ease;
     }
-@keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+
+    .login-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4), 0 0 50px rgba(99, 102, 241, 0.2);
     }
-h1 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
+
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #9ca3af;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
       color: #FFFFFF;
     }
-form {
+
+    form {
       display: flex;
       flex-direction: column;
       align-items: stretch;
+      gap: 1rem;
     }
-input[type="text"], input[type="password"] {
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="text"], 
+    input[type="password"] {
       width: 100%;
       padding: 0.9rem 1rem;
-      margin: 0.6rem 0;
-      border: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
       color: #E5E7EB;
       font-size: 1rem;
+      font-family: 'Inter', sans-serif;
       outline: none;
       transition: all 0.3s ease;
-      box-sizing: border-box;
     }
-input:focus {
-      box-shadow: 0 0 0 2px #6366F1;
-      background: rgba(255, 255, 255, 0.12);
+
+    input:focus {
+      border-color: #6366f1;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
-button {
+
+    input::placeholder {
+      color: #6b7280;
+    }
+
+    button {
       background: linear-gradient(135deg, #6366F1, #06B6D4);
       color: white;
       border: none;
       border-radius: 12px;
-      padding: 0.9rem 1rem;
+      padding: 1rem;
       width: 100%;
       font-size: 1rem;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-top: 0.6rem;
-      box-sizing: border-box;
+      margin-top: 0.5rem;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
     }
-button:hover {
+
+    button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
     }
-.footer-text {
-      margin-top: 1rem;
-      font-size: 0.85rem;
-      color: #9CA3AF;
+
+    button:active {
+      transform: translateY(0);
     }
-</style>
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .divider::before {
+      margin-right: 1rem;
+    }
+
+    .divider::after {
+      margin-left: 1rem;
+    }
+
+    .footer-links {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      color: #9ca3af;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .footer-links a:hover {
+      color: #6366f1;
+    }
+
+    .footer-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      transition: width 0.3s ease;
+    }
+
+    .footer-links a:hover::after {
+      width: 100%;
+    }
+
+    .footer-text {
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .footer-text::before {
+      content: '🔒';
+      font-size: 1rem;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      animation: shake 0.5s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        width: 90%;
+        padding: 2rem 1.5rem;
+      }
+
+      .logo {
+        font-size: 2rem;
+      }
+
+      h1 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="login-container">
-    <h1>Zephyr Cloud</h1>
-    <form method="POST" action="{% url 'login' %}">
-      {% csrf_token %}
-      <input type="text" name="username" placeholder="Username" required />
-      <input type="password" name="password" placeholder="Password" required />
-      <button type="submit">Login</button>
-    </form>
-    <p class="footer-text">Secure Personal Cloud</p>
+  <div class="login-wrapper">
+    <div class="login-container">
+      <div class="logo">Zephyr</div>
+      <p class="subtitle">Private Cloud Storage</p>
+      
+      <p style="color: #a5b4fc; font-size: 0.95rem; margin-bottom: 1.5rem; font-style: italic;">
+        Your files missed you! 👋
+      </p>
+
+      <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required />
+        </div>
+
+        <button type="submit">Sign In</button>
+      </form>
+
+      <div class="divider">or</div>
+
+      <div class="footer-links">
+        <a href="{% url 'landing_page' %}">← Back to Home</a>
+      </div>
+
+      <p class="footer-text">Secure Personal Cloud</p>
+    </div>
   </div>
 </body>
 </html>

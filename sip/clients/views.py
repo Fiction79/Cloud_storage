@@ -1,4 +1,3 @@
-# clients/views.py
 import os
 import shutil
 from django.shortcuts import render, redirect, get_object_or_404
@@ -94,6 +93,58 @@ def dashboard(request):
     })
 
 
+# -------------------- NEW: Folder View -------------------- #
+@login_required
+def folder_view(request, folder_name):
+    client_profile = ClientProfile.objects.get(user=request.user)
+    
+    # Get all files in this folder
+    files_in_folder = client_profile.files.filter(
+        relative_path__startswith=folder_name + '/'
+    )
+    
+    # Organize into subfolders and files
+    subfolders_dict = {}
+    direct_files = []
+    
+    for f in files_in_folder:
+        # Remove the parent folder name from the path
+        remaining_path = f.relative_path[len(folder_name) + 1:]
+        
+        if '/' in remaining_path:
+            # This file is in a subfolder
+            subfolder_name = remaining_path.split('/')[0]
+            if subfolder_name not in subfolders_dict:
+                subfolders_dict[subfolder_name] = {
+                    'name': subfolder_name,
+                    'full_path': folder_name + '/' + subfolder_name,
+                    'file_count': 0,
+                    'uploaded_at': f.uploaded_at
+                }
+            subfolders_dict[subfolder_name]['file_count'] += 1
+        else:
+            # This file is directly in the current folder
+            direct_files.append(f)
+    
+    subfolder_list = list(subfolders_dict.values())
+    
+    # Calculate quota
+    used_bytes = client_profile.used_bytes()
+    limit_bytes = client_profile.quota_limit
+    over_quota = client_profile.is_over_quota()
+    used_mb = used_bytes / (1024 * 1024)
+    limit_mb = limit_bytes / (1024 * 1024)
+    
+    return render(request, "clients/folder_view.html", {
+        "folder_name": folder_name,
+        "files": direct_files,
+        "subfolders": subfolder_list,
+        "used_mb": used_mb,
+        "limit_mb": limit_mb,
+        "over_quota": over_quota
+    })
+
+
 # -------------------- File Operations -------------------- #
 @login_required
 def upload_file(request):
@@ -106,13 +157,19 @@ def upload_file(request):
         messages.error(request, "Upload failed: Storage path not configured.")
         return redirect("dashboard")
 
-    # Get all uploaded files
     uploaded_files = request.FILES.getlist("files")
+    file_paths = request.POST.getlist("file_paths[]")
+    
     if not uploaded_files:
         messages.warning(request, "No files were selected.")
         return redirect("dashboard")
+    
+    # Debug
+    print(f"DEBUG: Number of files: {len(uploaded_files)}")
+    print(f"DEBUG: Number of paths: {len(file_paths)}")
+    for i, (f, p) in enumerate(zip(uploaded_files, file_paths)):
+        print(f"DEBUG: File {i}: {f.name} -> Path: {p}")
 
-    # Calculate total size
     total_size = sum(f.size for f in uploaded_files)
     if client_profile.used_bytes() + total_size > client_profile.quota_limit:
         messages.error(request, "Upload would exceed your storage quota!")
@@ -121,29 +178,34 @@ def upload_file(request):
     user_dir = client_profile.storage_path
     os.makedirs(user_dir, exist_ok=True)
 
-    for uploaded_file in uploaded_files:
-        # The filename sent from the browser includes the relative path
-        # This is set in the JavaScript: formData.append('files', file, relativePath)
-        relative_path = uploaded_file.name
+    for i, uploaded_file in enumerate(uploaded_files):
+        # Get the relative path from the separate field
+        if i < len(file_paths):
+            relative_path = file_paths[i]
+        else:
+            # Fallback to filename if path not provided
+            relative_path = uploaded_file.name
         
+        # Debug: print what we're receiving
+        print(f"DEBUG: Processing file {i}: {uploaded_file.name} as path: {relative_path}")
+
         # SECURITY: Normalize and prevent directory traversal
         relative_path = os.path.normpath(relative_path)
         if relative_path.startswith("..") or os.path.isabs(relative_path) or '\0' in relative_path:
             messages.error(request, f"Invalid file path: {relative_path}")
             continue
 
-        # Build the full filesystem path
         full_path = os.path.join(user_dir, relative_path)
         
-        # Create any necessary subdirectories
-        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        # Create directories if they don't exist
+        file_dir = os.path.dirname(full_path)
+        if file_dir:  # Only create if there's a directory path
+            os.makedirs(file_dir, exist_ok=True)
 
-        # Write the file to disk
         with open(full_path, 'wb+') as dest:
             for chunk in uploaded_file.chunks():
                 dest.write(chunk)
 
-        # Save to database with the relative path
         ClientFile.objects.create(
             client=client_profile,
             name=os.path.basename(relative_path),
@@ -161,9 +223,11 @@ def download_file(request, filename):
     if not client_profile.storage_path:
         return HttpResponse("Storage not configured.", status=404)
 
-    # Reconstruct full path: could be a folder file or root file
+    # Decode the filename (it may contain URL encoding)
+    filename = unquote(filename)
+    
     file_path = os.path.join(client_profile.storage_path, filename)
-    if os.path.exists(file_path):
+    if os.path.exists(file_path) and os.path.isfile(file_path):
         return FileResponse(open(file_path, "rb"), as_attachment=True)
     return HttpResponse("File not found", status=404)
 
@@ -175,7 +239,13 @@ def delete_file(request, filename):
         messages.error(request, "Delete failed: Storage path not configured.")
         return redirect("dashboard")
 
-    # Delete from DB: match by name OR full relative_path
+    # Decode the filename
+    filename = unquote(filename)
+    
+    # Check if this is a file inside a folder
+    is_nested = '/' in filename
+    
+    # Delete from DB
     ClientFile.objects.filter(
         client=client_profile
     ).filter(
@@ -190,6 +260,12 @@ def delete_file(request, filename):
         else:
             os.remove(file_path)
 
+    # Redirect back to folder view if it was a nested file
+    if is_nested:
+        folder_name = filename.split('/')[0]
+        messages.success(request, f"File deleted successfully!")
+        return redirect('folder_view', folder_name=folder_name)
+    
     return redirect("dashboard")
 
 
@@ -200,6 +276,9 @@ def delete_folder(request, folder_name):
         messages.error(request, "Storage not configured.")
         return redirect("dashboard")
 
+    # Decode folder name
+    folder_name = unquote(folder_name)
+    
     # Delete all DB entries under this folder
     ClientFile.objects.filter(
         client=client_profile,

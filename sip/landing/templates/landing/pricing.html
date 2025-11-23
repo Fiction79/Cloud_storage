@@ -19,6 +19,11 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      cursor: default !important;
+    }
+    
+    a, button, input, textarea, select {
+      cursor: pointer !important;
     }
 
     body {
@@ -27,6 +32,7 @@
       font-family: 'Inter', sans-serif;
       line-height: 1.6;
       overflow-x: hidden;
+      min-height: 100vh;
     }
 
     .container {
@@ -48,19 +54,47 @@
       font-weight: 700;
       background: linear-gradient(90deg, #6366f1, #06b6d4);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
     }
 
     .nav-links a {
       color: var(--text);
       text-decoration: none;
-      margin-left: 2rem;
       font-weight: 500;
       transition: color 0.2s;
+      position: relative;
     }
 
     .nav-links a:hover {
       color: #a5b4fc;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
     }
 
     .btn {
@@ -82,19 +116,31 @@
       box-shadow: 0 12px 25px rgba(99, 102, 241, 0.3);
     }
 
-    .btn-secondary {
-      background: transparent;
-      color: var(--accent);
-      border: 2px solid var(--accent);
+    .btn:active {
+      transform: translateY(-1px);
     }
 
-    .btn-secondary:hover {
-      background: rgba(99, 102, 241, 0.1);
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed !important;
+      transform: none;
     }
 
     .hero {
       text-align: center;
       padding: 4rem 0 3rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .hero h1 {
@@ -124,7 +170,7 @@
       border-radius: 18px;
       padding: 2.5rem 2rem;
       text-align: center;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
@@ -132,12 +178,18 @@
     .pricing-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 15px 35px rgba(99, 102, 241, 0.25);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(99, 102, 241, 0.3);
     }
 
     .pricing-card.featured {
       border: 2px solid #6366f1;
       transform: scale(1.03);
       z-index: 10;
+    }
+
+    .pricing-card.featured:hover {
+      transform: scale(1.03) translateY(-8px);
     }
 
     .pricing-card.featured::before {
@@ -178,6 +230,7 @@
       text-align: left;
       margin: 2rem 0;
       padding-left: 1.5rem;
+      list-style: none;
     }
 
     .pricing-card li {
@@ -201,9 +254,131 @@
       font-size: 1rem;
     }
 
-    .pricing-card.featured .btn {
-      background: linear-gradient(135deg, #6366f1, #06b6d4);
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .modal.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 20px;
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 90%;
+      position: relative;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 2rem;
+      color: #cbd5e1;
+      background: none;
       border: none;
+      cursor: pointer !important;
+      transition: color 0.3s ease;
+    }
+
+    .modal-close:hover {
+      color: #6366f1;
+    }
+
+    .modal h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .modal p {
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.9rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .success-message.active {
+      display: block;
+    }
+
+    .success-message h2 {
+      color: #10b981;
+      margin-bottom: 1rem;
+    }
+
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
     }
 
     .faq {
@@ -221,16 +396,35 @@
       border-radius: 12px;
       margin-bottom: 1.5rem;
       overflow: hidden;
+      transition: background 0.3s ease;
+    }
+
+    .faq-item:hover {
+      background: rgba(255,255,255,0.05);
     }
 
     .faq-question {
       padding: 1.5rem;
       font-size: 1.2rem;
       font-weight: 600;
-      cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      transition: color 0.3s ease;
+    }
+
+    .faq-question:hover {
+      color: #a5b4fc;
+    }
+
+    .faq-toggle {
+      font-size: 1.5rem;
+      color: #6366f1;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-toggle {
+      transform: rotate(45deg);
     }
 
     .faq-answer {
@@ -241,10 +435,13 @@
       color: #cbd5e1;
     }
 
-    /* Optional: Add basic JS interaction if desired later */
-    /* For now, answers are hidden */
+    .faq-item.active .faq-answer {
+      max-height: 500px;
+      padding: 0 1.5rem 1.5rem;
+    }
+
     .faq-answer p {
-        padding-bottom: 1.5rem;
+      line-height: 1.8;
     }
 
     .footer {
@@ -253,24 +450,60 @@
       color: #94a3b8;
       font-size: 0.9rem;
       border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 3rem;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     @media (max-width: 768px) {
-      .hero h1 { font-size: 2.5rem; }
-      .hero p { font-size: 1.1rem; }
-      .pricing-card.featured { transform: scale(1); }
-      .nav-links a { margin-left: 1rem; }
+      .hero h1 { 
+        font-size: 2.5rem; 
+      }
+      .hero p { 
+        font-size: 1.1rem; 
+      }
+      .pricing-card.featured { 
+        transform: scale(1); 
+      }
+      .pricing-card.featured:hover {
+        transform: translateY(-8px);
+      }
+      .nav-links { 
+        gap: 1rem; 
+      }
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-content {
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .nav-links {
+        gap: 0.8rem;
+      }
+      .nav-links a {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <nav class="navbar">
-      <div class="logo">Zephyr</div>
+      <a href="{% url 'landing_page' %}" class="logo">Zephyr</a>
       <div class="nav-links">
         <a href="{% url 'landing_page' %}">Home</a>
-        <a href="#">Pricing</a> <!-- Current page -->
-        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'login' %}" class="btn">Login</a>
       </div>
     </nav>
 
@@ -290,7 +523,7 @@
           <li>Unlimited uploads</li>
           <li>Basic support</li>
         </ul>
-        <a href="{% url 'login' %}" class="btn btn-secondary">Get Started</a>
+        <button class="btn" onclick="openModal('Starter')">Contact Developers</button>
       </div>
 
       <!-- Featured -->
@@ -305,7 +538,7 @@
           <li>Version history (7 days)</li>
           <li>Encrypted sharing links</li>
         </ul>
-        <a href="{% url 'login' %}" class="btn">Choose Pro</a>
+        <button class="btn" onclick="openModal('Pro')">Contact Developers</button>
       </div>
 
       <!-- Business -->
@@ -322,7 +555,7 @@
           <li>Team folders</li>
           <li>Custom domain support</li>
         </ul>
-        <a href="{% url 'login' %}" class="btn btn-secondary">Choose Business</a>
+        <button class="btn" onclick="openModal('Business')">Contact Developers</button>
       </div>
     </div>
 
@@ -344,26 +577,76 @@
               <li>Advanced Admin Controls</li>
               <li>Compliance Reports</li>
             </ul>
-            <a href="#" class="btn">Contact Developers</a> <!-- Dead link -->
+            <button class="btn" onclick="openModal('Enterprise')">Contact Developers</button>
         </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div id="formContent">
+          <h2>Contact Developers</h2>
+          <p>Interested in the <strong id="selectedPlan"></strong> plan? Fill out the form below and we'll get back to you shortly.</p>
+          <form id="contactForm" onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label for="name">Full Name *</label>
+              <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone">
+            </div>
+            <div class="form-group">
+              <label for="company">Company Name</label>
+              <input type="text" id="company" name="company">
+            </div>
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Tell us about your requirements..."></textarea>
+            </div>
+            <input type="hidden" id="plan" name="plan">
+            <button type="submit" class="btn" id="submitBtn">Send Message</button>
+          </form>
+        </div>
+        <div id="successMessage" class="success-message">
+          <div class="success-icon">✓</div>
+          <h2>Message Sent!</h2>
+          <p>Thank you for contacting us. We've received your message and will get back to you shortly.</p>
+          <button class="btn" onclick="closeModal()">Close</button>
+        </div>
+      </div>
     </div>
 
     <section class="faq">
       <h2>Frequently Asked Questions</h2>
       <div class="faq-item">
-        <div class="faq-question">How do I upgrade my plan?</div>
+        <div class="faq-question">
+          How do I upgrade my plan?
+          <span class="faq-toggle">+</span>
+        </div>
         <div class="faq-answer">
-          <p>Log into your dashboard and navigate to the billing section. You can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+          <p>Contact us through the form above and we'll help you upgrade to the plan that best fits your needs. Changes take effect immediately after confirmation.</p>
         </div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">Do you offer refunds?</div>
+        <div class="faq-question">
+          Do you offer refunds?
+          <span class="faq-toggle">+</span>
+        </div>
         <div class="faq-answer">
-          <p>We offer a 14-day money-back guarantee for all paid plans. If you're not satisfied, contact support within 14 days of your purchase.</p>
+          <p>We offer a 14-day money-back guarantee for all paid plans. If you're not satisfied, contact us within 14 days of your purchase.</p>
         </div>
       </div>
       <div class="faq-item">
-        <div class="faq-question">Is my data really private?</div>
+        <div class="faq-question">
+          Is my data really private?
+          <span class="faq-toggle">+</span>
+        </div>
         <div class="faq-answer">
           <p>Absolutely. Zephyr stores your data on your own infrastructure. We do not have access to your files, period.</p>
         </div>
@@ -374,5 +657,90 @@
       &copy; 2025 Zephyr — Private Cloud Storage. Built for the privacy-conscious.
     </div>
   </div>
+
+  <script>
+    // FAQ Toggle functionality
+    document.querySelectorAll('.faq-item').forEach(item => {
+      const question = item.querySelector('.faq-question');
+      question.style.cursor = 'pointer';
+      
+      question.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        
+        document.querySelectorAll('.faq-item').forEach(otherItem => {
+          if (otherItem !== item) {
+            otherItem.classList.remove('active');
+          }
+        });
+        
+        item.classList.toggle('active');
+      });
+    });
+
+    // Modal functionality
+    function openModal(plan) {
+      document.getElementById('contactModal').classList.add('active');
+      document.getElementById('selectedPlan').textContent = plan;
+      document.getElementById('plan').value = plan;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('contactModal').classList.remove('active');
+      document.getElementById('contactForm').reset();
+      document.getElementById('formContent').style.display = 'block';
+      document.getElementById('successMessage').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('contactModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Form submission
+    async function handleSubmit(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        company: document.getElementById('company').value,
+        message: document.getElementById('message').value,
+        plan: document.getElementById('plan').value
+      };
+
+      try {
+        const response = await fetch('{% url "contact_form" %}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          document.getElementById('formContent').style.display = 'none';
+          document.getElementById('successMessage').classList.add('active');
+        } else {
+          alert('There was an error sending your message. Please try again.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      } catch (error) {
+        alert('There was an error sending your message. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    }
+  </script>
 </body>
 </html>

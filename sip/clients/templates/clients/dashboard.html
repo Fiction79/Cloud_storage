@@ -6,13 +6,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard | Zephyr</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #1E1B4B 0%, #0F172A 100%);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #E5E7EB;
+      --text-secondary: #9CA3AF;
+      --accent-purple: #6366F1;
+      --accent-teal: #06B6D4;
+      --danger: #EF4444;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: radial-gradient(circle at 20% 20%, #1E1B4B 0%, #0F172A 100%);
+      background: var(--bg-gradient);
       font-family: 'Inter', sans-serif;
-      color: #E5E7EB;
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding-bottom: 2rem;
     }
 
     .navbar {
@@ -22,219 +39,442 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 2rem;
+      padding: 1.25rem 2.5rem;
       background: rgba(17, 24, 39, 0.6);
       backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 10;
+      border-bottom: 1px solid var(--border-color);
+      z-index: 100;
     }
 
-    .navbar h2 {
+    .navbar h1 {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.4rem;
-      color: #FFFFFF;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: white;
+      margin: 0;
     }
 
-    .navbar a {
-      text-decoration: none;
-      color: #A5B4FC;
+    .logout-form {
+      display: flex;
+      align-items: center;
+    }
+
+    .logout-button {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
       font-weight: 500;
-      transition: opacity 0.2s ease;
+      color: #A5B4FC;
+      background: none;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      margin: 0;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s, opacity 0.2s;
     }
 
-    .navbar a:hover { opacity: 0.8; }
+    .logout-button:hover {
+      background: rgba(165, 180, 252, 0.1);
+      opacity: 0.9;
+    }
 
     .content {
-      margin-top: 90px;
-      padding: 2rem;
-      max-width: 1100px;
+      margin-top: 100px;
+      padding: 0 2rem;
+      max-width: 1200px;
       margin-left: auto;
       margin-right: auto;
     }
 
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
     .welcome {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.9rem;
-      font-weight: 500;
-      margin-bottom: 2rem;
-      color: #FFFFFF;
+      font-size: 2.1rem;
+      font-weight: 600;
+      margin: 0;
+      color: white;
+    }
+
+    .quota-info {
+      background: var(--card-bg);
+      padding: 0.75rem 1.25rem;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      text-align: right;
+      min-width: 220px;
+    }
+
+    .quota-info p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .quota-info.over-quota p {
+      color: #F87171;
+      font-weight: 600;
     }
 
     .upload-section {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--card-bg);
       backdrop-filter: blur(12px);
       border-radius: 20px;
-      padding: 1.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2rem;
+      border: 1px solid var(--border-color);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2.5rem;
     }
 
-    .upload-section h3 {
+    .upload-section h2 {
       font-family: 'Poppins', sans-serif;
       color: #E0E7FF;
-      margin-bottom: 1rem;
+      margin-top: 0;
+      font-size: 1.4rem;
     }
 
-    .upload-section input[type="file"] {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 0.6rem;
-      border-radius: 10px;
-      color: #E5E7EB;
-      border: none;
+    .drop-area {
+      border: 2px dashed rgba(165, 180, 252, 0.4);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      background: rgba(99, 102, 241, 0.05);
+      transition: background 0.3s, border-color 0.3s;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    .drop-area:hover,
+    .drop-area.drag-over {
+      border-color: #6366F1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    #fileElem {
+      display: none;
+    }
+
+    .progress-bar {
       width: 100%;
     }
 
     .btn {
-      background: linear-gradient(135deg, #6366F1, #06B6D4);
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
       color: white;
       border: none;
-      border-radius: 10px;
-      padding: 0.6rem 1.2rem;
-      font-size: 0.9rem;
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
+      white-space: nowrap;
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-delete {
+      background: var(--danger);
+    }
+
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.5rem;
+      color: white;
+      margin: 2.5rem 0 1.5rem;
     }
 
     .file-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.75rem;
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
+      background: var(--card-bg);
+      border-radius: 18px;
       padding: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
       backdrop-filter: blur(10px);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
     .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 25px rgba(99, 102, 241, 0.25);
+      transform: translateY(-5px);
+      box-shadow: 0 6px 25px rgba(99, 102, 241, 0.3);
     }
 
     .card h3 {
       font-family: 'Poppins', sans-serif;
       color: #E0E7FF;
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+      margin: 0 0 0.75rem;
       word-break: break-word;
     }
 
     .card p {
-      font-size: 0.9rem;
-      color: #9CA3AF;
-      margin: 0.2rem 0;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      margin: 0.25rem 0;
     }
 
-    .card img {
-      max-width: 100%;
-      max-height: 120px;
-      margin-top: 0.5rem;
-      border-radius: 8px;
+    .preview-container {
+      margin: 0.75rem 0 1.25rem;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-container img,
+    .preview-container video,
+    .preview-container audio,
+    .preview-container iframe {
+      width: 100%;
+      display: block;
+      max-height: 160px;
       object-fit: cover;
-      cursor: pointer;
     }
 
     .card-actions {
-      margin-top: 1rem;
+      margin-top: auto;
       display: flex;
-      gap: 0.5rem;
-    }
-
-    .btn-delete {
-      background: #DC2626;
+      gap: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
     }
 
     .footer {
       text-align: center;
       margin-top: 3rem;
       color: #6B7280;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .header-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .quota-info { text-align: left; }
     }
   </style>
 </head>
 <body>
-  <!-- <div class="navbar">
-    <h2>Zephyr</h2>
-    <a href="{% url 'logout' %}">Logout</a>
-  </div> -->
+  <div class="navbar">
+    <h1>Zephyr</h1>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+      {% csrf_token %}
+      <button type="submit" class="logout-button">Logout</button>
+    </form>
+  </div>
 
   <div class="content">
-    <div class="welcome">Welcome back, {{ user.username }} 👋</div>
+    <div class="header-section">
+      <h2 class="welcome">Welcome back, {{ user.username }} 👋</h2>
+      <div class="quota-info {% if over_quota %}over-quota{% endif %}">
+        {% if over_quota %}
+          <p>⚠️ Storage limit exceeded!</p>
+          <p>{{ used_mb|floatformat:2 }} MB / {{ limit_mb|floatformat:2 }} MB</p>
+        {% else %}
+          <p>Storage used</p>
+          <p>{{ used_mb|floatformat:2 }} MB / {{ limit_mb|floatformat:2 }} MB</p>
+        {% endif %}
+      </div>
+    </div>
 
     <div class="upload-section">
-      <h3>Upload a New File</h3>
-      <form method="POST" enctype="multipart/form-data" action="{% url 'upload' %}">
-        {% csrf_token %}
-        <input type="file" name="file" required />
-        <button type="submit" class="btn">Upload</button>
-      </form>
-    </div>
-
-    <h3 style="margin-top:2rem;">Your Files</h3>
-    <div class="file-grid">
-      {% for file in files %}
-      <div class="card">
-        <h3>{{ file.name }}</h3>
-        <p>Size: {{ file.size|floatformat:2 }} MB</p>
-        <p>Uploaded: {{ file.uploaded_at|date:"Y-m-d H:i" }}</p>
-
-{% if file.is_image %}
-  <a href="{% url 'download' file.name %}" target="_blank">
-    <img src="{% url 'download' file.name %}" alt="{{ file.name }}">
-  </a>
-{% elif file.is_video %}
-  <video width="100%" controls style="margin-top:0.5rem;">
-    <source src="{% url 'download' file.name %}" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
-{% elif file.is_audio %}
-  <audio controls style="width:100%; margin-top:0.5rem;">
-    <source src="{% url 'download' file.name %}" type="audio/mpeg">
-    Your browser does not support the audio tag.
-  </audio>
-{% elif file.is_pdf %}
-  <iframe src="{% url 'download' file.name %}" width="100%" height="200px" style="margin-top:0.5rem;" frameborder="0">
-    This browser does not support PDFs. <a href="{% url 'download' file.name %}">Download PDF</a>
-  </iframe>
-{% endif %}
-
-{% if over_quota %}
-  <p style="color:#F87171; font-weight:bold;">
-    ⚠ You have exceeded your storage limit ({{ used_mb|floatformat:2 }} MB / {{ limit_mb|floatformat:2 }} MB)!
-  </p>
-{% else %}
-  <p>Used: {{ used_mb|floatformat:2 }} MB / {{ limit_mb|floatformat:2 }} MB</p>
-{% endif %}
-
-
-
-
-        <div class="card-actions">
-          <a href="{% url 'download' file.name %}"><button class="btn">Download</button></a>
-          <a href="{% url 'delete' file.name %}" onclick="return confirm('Are you sure you want to delete this file?');">
-            <button class="btn btn-delete">Delete</button>
-          </a>
-        </div>
+      <h2>Upload Files or Folders</h2>
+      <div id="drop-area">
+        <p>📁 Drag & drop files or folders here </p>
+        <input type="file" id="fileElem" multiple webkitdirectory directory />
+        <button type="button" class="btn" onclick="document.getElementById('fileElem').click()">Browse</button>
       </div>
-      {% empty %}
-      <p>No files uploaded yet.</p>
-      {% endfor %}
+
+      <div id="upload-progress" class="progress-bar" style="display: none; margin-top: 1rem;">
+        <div class="progress-fill" style="width: 0%; height: 8px; background: linear-gradient(to right, #6366F1, #06B6D4); border-radius: 4px;"></div>
+        <p id="progress-text" style="font-size: 0.9rem; margin-top: 0.3rem; color: #E0E7FF;"></p>
+      </div>
     </div>
+
+    <h2 class="section-title">
+      {% if files or folders %}Your Content{% else %}No Content Yet{% endif %}
+    </h2>
+
+    {% if files or folders %}
+      <div class="file-grid">
+        <!-- Folders first -->
+        {% for folder in folders %}
+          <div class="card">
+            <h3>📁 {{ folder.name }}</h3>
+            <p>{{ folder.file_count }} files</p>
+            <p>Uploaded: {{ folder.uploaded_at|date:"M d, Y H:i" }}</p>
+            <div class="preview-container">
+              <p style="color: var(--text-secondary);">Folder</p>
+            </div>
+            <div class="card-actions">
+              <button class="btn" disabled>Download</button> <!-- Optional: add folder zip later -->
+              <a href="{% url 'delete_folder' folder.name %}" onclick="return confirm('Delete entire folder?');">
+                <button class="btn btn-delete">Delete</button>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+
+        <!-- Individual files (not in folders) -->
+        {% for file in files %}
+          <div class="card">
+            <h3>{{ file.name }}</h3>
+            <p>Size: {{ file.size|floatformat:2 }} MB</p>
+            <p>Uploaded: {{ file.uploaded_at|date:"M d, Y H:i" }}</p>
+
+            <div class="preview-container">
+              {% if file.is_image %}
+                <a href="{% url 'download' file.name %}" target="_blank">
+                  <img src="{% url 'download' file.name %}" alt="{{ file.name }}">
+                </a>
+              {% elif file.is_video %}
+                <video controls>
+                  <source src="{% url 'download' file.name %}" type="video/mp4">
+                  Your browser does not support video.
+                </video>
+              {% elif file.is_audio %}
+                <audio controls>
+                  <source src="{% url 'download' file.name %}" type="audio/mpeg">
+                  Your browser does not support audio.
+                </audio>
+              {% elif file.is_pdf %}
+                <iframe src="{% url 'download' file.name %}" height="160" frameborder="0">
+                  <a href="{% url 'download' file.name %}">Download PDF</a>
+                </iframe>
+              {% else %}
+                <p style="padding: 0.5rem; color: var(--text-secondary);">No preview</p>
+              {% endif %}
+            </div>
+
+            <div class="card-actions">
+              <a href="{% url 'download' file.name %}"><button class="btn" style="flex:1;">Download</button></a>
+              <a href="{% url 'delete' file.name %}" onclick="return confirm('Delete this file?');">
+                <button class="btn btn-delete" style="flex:1;">Delete</button>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p style="color: #9CA3AF; font-size: 1.1rem;">Upload files or folders to get started.</p>
+    {% endif %}
 
     <div class="footer">© 2025 Zephyr — Secure Personal Storage</div>
   </div>
+
+  <script>
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('fileElem');
+    const progressBar = document.getElementById('upload-progress');
+    const progressFill = document.querySelector('.progress-fill');
+    const progressText = document.getElementById('progress-text');
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.add('drag-over'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.remove('drag-over'), false);
+    });
+
+    dropArea.addEventListener('drop', handleDrop, false);
+    fileInput.addEventListener('change', handleFileSelect, false);
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      uploadFiles(files);
+    }
+
+    function handleFileSelect(e) {
+      const files = e.target.files;
+      uploadFiles(files);
+    }
+
+    function uploadFiles(fileList) {
+      if (fileList.length === 0) return;
+
+      const formData = new FormData();
+      const filesArray = Array.from(fileList);
+
+      // Add CSRF token
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      formData.append('csrfmiddlewaretoken', csrfToken);
+
+      // Add each file with its relative path
+      filesArray.forEach(file => {
+        // For folders, `webkitRelativePath` gives path like "myfolder/image.png"
+        const relativePath = file.webkitRelativePath || file.name;
+        formData.append('files', file, relativePath);
+      });
+
+      // Show progress bar
+      progressBar.style.display = 'block';
+      progressFill.style.width = '0%';
+      progressText.textContent = 'Starting upload...';
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.upload.onprogress = function(e) {
+        if (e.lengthComputable) {
+          const percentComplete = (e.loaded / e.total) * 100;
+          progressFill.style.width = percentComplete + '%';
+          progressText.textContent = `Uploading... ${Math.round(percentComplete)}%`;
+        }
+      };
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          progressText.textContent = 'Upload complete! Reloading...';
+          setTimeout(() => location.reload(), 800);
+        } else {
+          progressText.textContent = 'Upload failed. Please try again.';
+          progressFill.style.backgroundColor = '#EF4444';
+        }
+      };
+
+      xhr.onerror = function() {
+        progressText.textContent = 'Network error.';
+        progressFill.style.backgroundColor = '#EF4444';
+      };
+
+      xhr.open('POST', '{% url "upload" %}', true);
+      xhr.send(formData);
+    }
+  </script>
+
+  <!-- Hidden CSRF token for AJAX (safe to include) -->
+  {% csrf_token %}
 </body>
 </html>

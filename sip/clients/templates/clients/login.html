@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | SIP Cloud</title>
+  <title>Login | Zephyr Cloud</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <style>
 body {
@@ -86,7 +86,7 @@ button:hover {
 </head>
 <body>
   <div class="login-container">
-    <h1>SIP Cloud</h1>
+    <h1>Zephyr Cloud</h1>
     <form method="POST" action="{% url 'login' %}">
       {% csrf_token %}
       <input type="text" name="username" placeholder="Username" required />

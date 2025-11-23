@@ -1,0 +1,378 @@
+<!-- landing/templates/landing/pricing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zephyr Pricing — Secure, Private Cloud Storage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1e1b4b;
+      --secondary: #0f172a;
+      --accent: #6366f1;
+      --text: #e5e7eb;
+      --light: #f8fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      margin-left: 2rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #a5b4fc;
+    }
+
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.9rem 1.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 4rem 0 3rem;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      color: #cbd5e1;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+      margin: 4rem 0;
+    }
+
+    .pricing-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(99, 102, 241, 0.25);
+    }
+
+    .pricing-card.featured {
+      border: 2px solid #6366f1;
+      transform: scale(1.03);
+      z-index: 10;
+    }
+
+    .pricing-card.featured::before {
+      content: "Most Popular";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #6366f1;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+    }
+
+    .pricing-card h3 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .pricing-card .price {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 1rem 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .pricing-card .price span {
+      font-size: 1rem;
+      color: #9ca3af;
+      font-weight: 400;
+    }
+
+    .pricing-card ul {
+      text-align: left;
+      margin: 2rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .pricing-card li {
+      color: #cbd5e1;
+      margin-bottom: 0.8rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .pricing-card li:before {
+      content: "✓";
+      color: #6366f1;
+      font-weight: bold;
+      margin-right: 0.7rem;
+    }
+
+    .pricing-card .btn {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1rem;
+    }
+
+    .pricing-card.featured .btn {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      border: none;
+    }
+
+    .faq {
+      margin: 5rem 0;
+    }
+
+    .faq h2 {
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 3rem;
+    }
+
+    .faq-item {
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 1.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-answer {
+      padding: 0 1.5rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      color: #cbd5e1;
+    }
+
+    /* Optional: Add basic JS interaction if desired later */
+    /* For now, answers are hidden */
+    .faq-answer p {
+        padding-bottom: 1.5rem;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 3rem 0;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.5rem; }
+      .hero p { font-size: 1.1rem; }
+      .pricing-card.featured { transform: scale(1); }
+      .nav-links a { margin-left: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="navbar">
+      <div class="logo">Zephyr</div>
+      <div class="nav-links">
+        <a href="{% url 'landing_page' %}">Home</a>
+        <a href="#">Pricing</a> <!-- Current page -->
+        <a href="{% url 'login' %}">Login</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <h1>Simple, Transparent Pricing</h1>
+      <p>No credit card required for Starter. Pay only for what you need. Own your data forever.</p>
+    </section>
+
+    <div class="pricing-grid">
+      <!-- Basic -->
+      <div class="pricing-card">
+        <h3>Starter</h3>
+        <div class="price">Free<span>/lifetime</span></div>
+        <ul>
+          <li>1 GB Storage</li>
+          <li>File previews (images, PDFs, audio, video)</li>
+          <li>Unlimited uploads</li>
+          <li>Basic support</li>
+        </ul>
+        <a href="{% url 'login' %}" class="btn btn-secondary">Get Started</a>
+      </div>
+
+      <!-- Featured -->
+      <div class="pricing-card featured">
+        <h3>Pro</h3>
+        <div class="price">$4.99<span>/month</span></div>
+        <ul>
+          <li>20 GB Storage</li>
+          <li>File previews (images, PDFs, audio, video)</li>
+          <li>Unlimited uploads</li>
+          <li>Priority support</li>
+          <li>Version history (7 days)</li>
+          <li>Encrypted sharing links</li>
+        </ul>
+        <a href="{% url 'login' %}" class="btn">Choose Pro</a>
+      </div>
+
+      <!-- Business -->
+      <div class="pricing-card">
+        <h3>Business</h3>
+        <div class="price">$14.99<span>/month</span></div>
+        <ul>
+          <li>100 GB Storage</li>
+          <li>File previews (images, PDFs, audio, video)</li>
+          <li>Unlimited uploads</li>
+          <li>24/7 priority support</li>
+          <li>Version history (30 days)</li>
+          <li>Encrypted sharing links</li>
+          <li>Team folders</li>
+          <li>Custom domain support</li>
+        </ul>
+        <a href="{% url 'login' %}" class="btn btn-secondary">Choose Business</a>
+      </div>
+    </div>
+
+    <div class="pricing-grid">
+        <!-- Enterprise -->
+        <div class="pricing-card">
+            <h3>Enterprise</h3>
+            <div class="price">Custom</div>
+            <ul>
+              <li>Unlimited Storage</li>
+              <li>File previews (images, PDFs, audio, video)</li>
+              <li>Unlimited uploads</li>
+              <li>Dedicated 24/7 support</li>
+              <li>Version history (unlimited)</li>
+              <li>Encrypted sharing links</li>
+              <li>Team folders</li>
+              <li>Custom domain support</li>
+              <li>SSO Integration</li>
+              <li>Advanced Admin Controls</li>
+              <li>Compliance Reports</li>
+            </ul>
+            <a href="#" class="btn">Contact Developers</a> <!-- Dead link -->
+        </div>
+    </div>
+
+    <section class="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <div class="faq-question">How do I upgrade my plan?</div>
+        <div class="faq-answer">
+          <p>Log into your dashboard and navigate to the billing section. You can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Do you offer refunds?</div>
+        <div class="faq-answer">
+          <p>We offer a 14-day money-back guarantee for all paid plans. If you're not satisfied, contact support within 14 days of your purchase.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question">Is my data really private?</div>
+        <div class="faq-answer">
+          <p>Absolutely. Zephyr stores your data on your own infrastructure. We do not have access to your files, period.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2025 Zephyr — Private Cloud Storage. Built for the privacy-conscious.
+    </div>
+  </div>
+</body>
+</html>

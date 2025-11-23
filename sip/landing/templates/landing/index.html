@@ -1,0 +1,284 @@
+<!-- landing/templates/landing/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zephyr — Private Cloud Storage. No AI. No Tracking.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1e1b4b;
+      --secondary: #0f172a;
+      --accent: #6366f1;
+      --text: #e5e7eb;
+      --light: #f8fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: default !important;
+    }
+    a, button {
+      cursor: pointer !important;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: opacity 0.3s ease;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 5rem 0;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 1.4rem;
+      color: #cbd5e1;
+      max-width: 800px;
+      margin: 0 auto 3rem;
+    }
+
+    .btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      margin-left: 1rem;
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(99, 102, 241, 0.1);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.2);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2.5rem;
+      margin: 5rem 0;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .feature-card h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .feature-card p {
+      color: #cbd5e1;
+      font-size: 1.1rem;
+    }
+
+    .highlight {
+      background: linear-gradient(90deg, rgba(99,102,241,0.1), rgba(6,182,212,0.1));
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 4rem 0;
+      text-align: center;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+
+    .highlight p {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: #fbbf24;
+      margin-bottom: 1rem;
+    }
+
+    .highlight span {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 3rem 0;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 3rem;
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { 
+        font-size: 2.5rem; 
+      }
+      .hero p { 
+        font-size: 1.2rem; 
+      }
+      .btn-secondary {
+        margin-left: 0;
+        margin-top: 1rem;
+      }
+      .features {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .btn {
+        padding: 0.8rem 1.8rem;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="navbar">
+      <a href="/" class="logo" style="text-decoration: none;">Zephyr</a>
+      <a href="{% url 'login' %}" class="btn">Login</a>
+    </nav>
+
+    <section class="hero">
+      <h1>Your Files. Your Rules.</h1>
+      <p>Zephyr is the only cloud storage that doesn't sell your data, scan your photos, or train AI on your personal documents. Store, share, and access your files without surrendering your privacy.</p>
+      <a href="{% url 'pricing_page' %}" class="btn">View Pricing Plans</a>
+      <a href="{% url 'login' %}" class="btn btn-secondary">Get Started</a>
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <h3>🔒 Zero AI Surveillance</h3>
+        <p>Google Drive, Dropbox, and OneDrive scan your files to train their AI models. Zephyr never reads, indexes, or analyzes your content. Your files are yours, not a dataset.</p>
+      </div>
+      <div class="feature-card">
+        <h3>💻 Local-First Storage</h3>
+        <p>Your files live on your own server or device. We don't host your data. You do. Zephyr is a client-side tool, not a corporate cloud. Your storage is your responsibility and your right.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🛡️ No Tracking. No Ads.</h3>
+        <p>No cookies. No analytics. No behavioral profiling. Zephyr doesn't know who you are, what you upload, or when you log in. Your privacy is built into every line of code.</p>
+      </div>
+    </section>
+
+    <div class="highlight">
+      <p>"<span>Why trust Big Tech with your memories?</span> Zephyr gives you back control."</p>
+    </div>
+
+    <section class="features">
+      <div class="feature-card">
+        <h3>⚡ Instant Uploads</h3>
+        <p>Upload directly from your browser. No waiting. No throttling. No "processing" delays.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🖼️ Smart Preview</h3>
+        <p>View images, play videos, read PDFs—all in browser.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🌐 Self-Hosted Freedom</h3>
+        <p>Run Zephyr on your Raspberry Pi, home server, or VPS. Full ownership. Zero dependency.</p>
+      </div>
+    </section>
+
+    <div class="footer">
+      &copy; 2025 Zephyr, Private Cloud Storage. Built for the privacy-conscious.
+    </div>
+  </div>
+</body>
+</html>
